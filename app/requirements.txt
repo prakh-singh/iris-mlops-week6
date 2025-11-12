@@ -2,4 +2,3 @@ fastapi
 uvicorn[standard]
 mlflow
 scikit-learn
-pandas
