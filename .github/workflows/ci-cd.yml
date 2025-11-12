@@ -18,17 +18,17 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+- name: Decode and save GCP key
+  id: auth-file
+  run: |
+    echo "${{ secrets.GCP_SA_KEY_BASE64 }}" | base64 --decode > $HOME/gcp-key.json
 
-    - name: Decode and authenticate to Google Cloud
-      run: |
-        echo "${{ secrets.GCP_SA_KEY_BASE64 }}" | base64 --decode > ${HOME}/gcp-key.json
-      shell: bash
+- name: Authenticate to Google Cloud
+  uses: google-github-actions/auth@v2
+  with:
+    credentials_json: ${{ toJson(secrets.GCP_SA_KEY_BASE64) }}
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ contents('${HOME}/gcp-key.json') }}
-
+ 
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@v2
       with:
