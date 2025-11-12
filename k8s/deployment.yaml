@@ -17,3 +17,22 @@ spec:
         image: us-central1-docker.pkg.dev/pacific-decoder-473005-h5/my-repo/iris-api:latest
         ports:
         - containerPort: 8200
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /predict
+            port: 8200
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /predict
+            port: 8200
+          initialDelaySeconds: 15
+          periodSeconds: 20
