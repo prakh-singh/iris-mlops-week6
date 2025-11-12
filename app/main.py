@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import joblib
-import time
+import joblib, os, time
 
 app = FastAPI()
 
@@ -11,12 +10,17 @@ class IrisInput(BaseModel):
     petal_length: float
     petal_width: float
 
-# ✅ Load model locally
-model = joblib.load("mlartifacts/395052396883343097/models/m-343ad0facfda474f8bd877842f8cb0cd/artifacts/model.pkl")
+MODEL_PATH = "model.pkl"
+
+# ✅ Ensure model file exists before loading
+if not os.path.exists(MODEL_PATH):
+    raise RuntimeError(f"Model file not found at {MODEL_PATH}")
+
+model = joblib.load(MODEL_PATH)
 
 @app.get("/")
 def root():
-    return {"message": "Iris API is live and model loaded locally 🚀"}
+    return {"message": "Iris API running with local model 🚀"}
 
 @app.post("/predict")
 def predict(data: IrisInput):
