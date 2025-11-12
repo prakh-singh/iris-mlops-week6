@@ -1,0 +1,43 @@
+name: CI-CD to GKE
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  CLUSTER: iris-ml-cluster
+  ZONE: us-central1-a
+  IMAGE: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/my-repo/iris-api:latest
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        install_components: 'gke-gcloud-auth-plugin'
+
+    - name: Build and Push Docker Image
+      run: |
+        gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        docker build -t $IMAGE app/
+        docker push $IMAGE
+
+    - name: Deploy to GKE
+      run: |
+        gcloud container clusters get-credentials $CLUSTER --zone $ZONE
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml

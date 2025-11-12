@@ -1,0 +1,15 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+env/
+venv/
+
+# MLflow local data
+app/mlruns/
+app/mlartifacts/
+key.json
+
+# Kubernetes temp files
+*.log
